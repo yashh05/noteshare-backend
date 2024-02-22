@@ -12,6 +12,7 @@ import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "../config/config";
 import { findUserByEmail, findUserById } from "../services/user.service";
 import { user } from "../models/user.model";
 import { Ref } from "@typegoose/typegoose";
+import mongoose from "mongoose";
 
 export enum Role {
   Admin = "Admin",
@@ -52,39 +53,48 @@ const handleGetAllUser = async (req: Request, res: Response) => {
         .json({ status: "fail", error: ERROR_MESSAGES.UNAUTHORIZED_USER });
     }
 
-    let data: { role: Role; email: Ref<user> }[] = [];
+    let data: { role: Role; roleId: Ref<user> }[] = [];
 
-    const readOnlyArray = doc.readonly?.map((email) => ({
+    const readOnlyArray = doc.readonly?.map((roleId) => ({
       role: Role.readOnly,
-      email,
+      roleId,
     }));
-    const readWriteArray = doc.readWrite?.map((email) => ({
+    const readWriteArray = doc.readWrite?.map((roleId) => ({
       role: Role.readWrite,
-      email,
+      roleId,
     }));
 
-    if (readOnlyArray && readWriteArray) {
-      data = readOnlyArray.concat(readWriteArray);
-    } else if (readOnlyArray) {
-      data = readOnlyArray;
-    } else if (readWriteArray) {
-      data = readWriteArray;
+    if (readOnlyArray && readOnlyArray.length > 0) {
+      data = data.concat(readOnlyArray);
     }
 
-    //getting the email of all users as they were stored in the form of thier id.
-    const filteredDataPromises = data.map(async (item) => {
-      const user = await findUserById(item.email._id);
-      return {
-        role: item.role,
-        email: user?.email,
-      };
-    });
+    if (readWriteArray && readWriteArray.length > 0) {
+      data = data.concat(readWriteArray);
+    }
+
+    const filteredDataPromises: Promise<{ role: Role; email: string }>[] =
+      data.map(async (item) => {
+        try {
+          const user = await findUserById(
+            new mongoose.Types.ObjectId(item.roleId._id)
+          );
+          if (!user) {
+            throw new Error("User not found");
+          }
+          return {
+            role: item.role,
+            email: user.email,
+          };
+        } catch (error) {
+          return { role: item.role, email: "User not found" };
+        }
+      });
 
     const filteredData = await Promise.all(filteredDataPromises);
 
     return res.status(200).json({ status: "success", users: filteredData });
-  } catch (e: any) {
-    console.error(e.message);
+  } catch (error: any) {
+    console.error(error.message);
     res
       .status(500)
       .json({ status: "fail", error: ERROR_MESSAGES.INTERNAL_SERVER_ERROR });
