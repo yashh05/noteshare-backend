@@ -60,11 +60,17 @@ const handleSignIn = async (req: Request, res: Response) => {
       }
 
       const token = createToken({ userId: newUser._id });
+      console.log(token);
+
       if (!token) {
         throw new Error(ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
       }
-
-      res.cookie("authentication", token);
+      res.setHeader("authentication", token);
+      res.cookie("authentication", token, {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      });
       res.status(200).json({
         status: "success",
         message: "user signed in",
