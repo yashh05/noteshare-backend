@@ -71,6 +71,7 @@ const handleGetAllUser = async (req: Request, res: Response) => {
     if (readWriteArray && readWriteArray.length > 0) {
       data = data.concat(readWriteArray);
     }
+    console.log(data);
 
     const filteredDataPromises: Promise<{ role: Role; email: string }>[] =
       data.map(async (item) => {
