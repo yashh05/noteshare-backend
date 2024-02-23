@@ -22,7 +22,14 @@ dotenv.config();
 const app: Express = express();
 
 app.use(
-  cors({ origin: "https://noteshare-client.vercel.app/", credentials: true })
+  cors({
+    credentials: true,
+    origin: [
+      "http://localhost:5173",
+      "https://noteshare-client.vercel.app",
+      "https://noteshare-client-wev1a1zca-yashcodewallah.vercel.app",
+    ],
+  })
 );
 app.use(express.json());
 app.use(cookieParser());
