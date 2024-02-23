@@ -28,9 +28,15 @@ const handleSignUp = async (req: Request, res: Response) => {
         .status(500)
         .json({ status: "fail", error: ERROR_MESSAGES.TOKEN_CREATION_ERROR });
     }
-    console.log(token);
-
-    res.cookie("authentication", token);
+    if (process.env.DEV_ENV) {
+      res.cookie("authentication", token, { sameSite: "none" });
+    } else {
+      res.cookie("authentication", token, {
+        sameSite: "none",
+        secure: true,
+        httpOnly: true,
+      });
+    }
     res.status(201).json({
       status: "success",
       message: "new user created",
@@ -64,7 +70,15 @@ const handleSignIn = async (req: Request, res: Response) => {
       if (!token) {
         throw new Error(ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
       }
-      res.cookie("authentication", token, { sameSite: "none" });
+      if (process.env.DEV_ENV) {
+        res.cookie("authentication", token, { sameSite: "none" });
+      } else {
+        res.cookie("authentication", token, {
+          sameSite: "none",
+          secure: true,
+          httpOnly: true,
+        });
+      }
       res.status(200).json({
         status: "success",
         message: "user signed in",
