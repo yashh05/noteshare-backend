@@ -71,7 +71,7 @@ const handleGetAllUser = async (req: Request, res: Response) => {
     if (readWriteArray && readWriteArray.length > 0) {
       data = data.concat(readWriteArray);
     }
-    console.log(data);
+    // console.log(data);
 
     const filteredDataPromises: Promise<{ role: Role; email: string }>[] =
       data.map(async (item) => {
@@ -106,7 +106,7 @@ const handleGetFiles = async (req: Request, res: Response) => {
   try {
     const { userId } = res.locals;
     const files = await getAllFiles(userId);
-    console.log(files);
+    // console.log(files);
 
     const data = files.map((file) => {
       let role: Role = Role.Admin;
@@ -119,7 +119,7 @@ const handleGetFiles = async (req: Request, res: Response) => {
 
       return { docId: file._id, name: file.name, desc: file.desc, role };
     });
-    console.log(data);
+    // console.log(data);
     return res.status(200).json({ status: "success", docs: data });
   } catch (e: any) {
     console.error(e.message);
@@ -130,7 +130,7 @@ const handleGetFiles = async (req: Request, res: Response) => {
 };
 
 const handleNewAccessRole = async (req: Request, res: Response) => {
-  console.log("hello");
+  // console.log("hello");
 
   try {
     const {
@@ -154,7 +154,7 @@ const handleNewAccessRole = async (req: Request, res: Response) => {
     }
 
     const newPerson = await findUserByEmail(email);
-    console.log(newPerson);
+    // console.log(newPerson);
 
     if (!newPerson) {
       return res

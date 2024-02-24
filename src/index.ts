@@ -43,7 +43,11 @@ const server = app.listen(process.env.PORT || 5000, () => {
 
 const io = new Server(server, {
   cors: {
-    origin: "https://noteshare-client.vercel.app/",
+    origin: [
+      "http://localhost:5173",
+      "https://noteshare-client.vercel.app",
+      "https://noteshare-client-wev1a1zca-yashcodewallah.vercel.app",
+    ],
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -93,7 +97,7 @@ io.use(async (socket: Socket, next: (err?: Error) => void) => {
     if (!userAuthLevel) {
       return next(new Error(ERROR_MESSAGES.UNAUTHORIZED_USER));
     }
-    console.log(userAuthLevel, "hii");
+    // console.log(userAuthLevel, "hii");
 
     socket.data = { userId, docId, authLevel: userAuthLevel };
     return next();
@@ -119,7 +123,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("save-doc", async ({ docData }) => {
-    console.log(docData);
+    // console.log(docData);
     const doc = await getDocByIdAndUpdate(docId, docData);
   });
 
